@@ -303,7 +303,7 @@
     <script>
         const MODEL_URL = "https://teachablemachine.withgoogle.com/models/j33SLZtyT/";
 
-        let model, webcamObj, isWebcamRunning = false;
+        let model, webcamStream, isWebcamRunning = false;
 
         // ── Load Model ──────────────────────────────────────────
         async function loadModel() {
@@ -339,28 +339,35 @@
         }
 
         // ── Webcam ───────────────────────────────────────────────
-        async function startWebcam() {
-            if (isWebcamRunning) return;
-            const container = document.getElementById('webcam-container');
-            container.innerHTML = '';
-            // kamera belakang
-            webcamObj = new tmImage.Webcam(400, 300, false, { facingMode: "environment" });
-            await webcamObj.setup();
-            await webcamObj.play();
-            container.appendChild(webcamObj.canvas);
-            isWebcamRunning = true;
-            window.requestAnimationFrame(webcamLoop);
-        }
 
-        async function webcamLoop() {
-            if (!isWebcamRunning) return;
-            webcamObj.update();
-            window.requestAnimationFrame(webcamLoop);
+        async function startWebcam() {
+            const container = document.getElementById('webcam-container');
+
+            // Buat elemen video langsung
+            let video = document.getElementById('webcam-video');
+            if (!video) {
+                video = document.createElement('video');
+                video.id = 'webcam-video';
+                video.autoplay = true;
+                video.playsInline = true;
+                video.style.width = '100%';
+                video.style.borderRadius = '0.75rem';
+                container.innerHTML = '';
+                container.appendChild(video);
+            }
+
+            // Request kamera belakang
+            webcamStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { exact: "environment" } }
+            });
+            video.srcObject = webcamStream;
+            isWebcamRunning = true;
         }
 
         function stopWebcam() {
-            if (webcamObj && isWebcamRunning) {
-                webcamObj.stop();
+            if (webcamStream) {
+                webcamStream.getTracks().forEach(track => track.stop());
+                webcamStream = null;
                 isWebcamRunning = false;
             }
         }
@@ -370,7 +377,14 @@
                 await startWebcam();
                 return;
             }
-            await predict(webcamObj.canvas);
+
+            // Ambil frame dari video ke canvas
+            const video = document.getElementById('webcam-video');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0);
+            await predict(canvas);
         }
 
         // ── Upload ───────────────────────────────────────────────
