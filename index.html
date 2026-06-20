@@ -167,15 +167,11 @@
                     </div>
                     <!-- Camera Tab Content -->
                     <div class="active flex-1 flex flex-col gap-md" data-tab-content="" id="tab-camera">
-                        <div class="relative aspect-video bg-black rounded-xl overflow-hidden group">
-                            <div
-                                class="absolute inset-0 flex items-center justify-center bg-black/20 text-white z-10 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <span class="material-symbols-outlined text-[48px]">videocam</span>
-                            </div>
+                        <div class="relative bg-black rounded-xl overflow-hidden">
                             <!-- Webcam Feed -->
                             <div id="webcam-container"
                                 class="w-full flex items-center justify-center bg-black rounded-xl overflow-hidden"
-                                style="min-height: 450px;">
+                                style="min-height: 300px;">
                                 <div class="flex flex-col items-center gap-2 text-white/60">
                                     <span class="material-symbols-outlined text-[48px]">videocam_off</span>
                                     <span class="text-body-sm">Klik Capture untuk memulai kamera</span>
@@ -344,42 +340,43 @@
         async function startWebcam() {
             const container = document.getElementById('webcam-container');
 
-            // Buat elemen video langsung
+            // Request kamera belakang
+            try {
+                webcamStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { exact: "environment" } }
+                });
+            } catch {
+                // Fallback jika "exact" tidak didukung
+                webcamStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: "environment" }
+                });
+            }
+
+            // Buat elemen video
             let video = document.getElementById('webcam-video');
             if (!video) {
                 video = document.createElement('video');
                 video.id = 'webcam-video';
                 video.autoplay = true;
                 video.playsInline = true;
+                video.muted = true;
                 video.style.width = '100%';
-                video.style.height = '100%';
-                video.style.objectFit = 'cover';
+                video.style.display = 'block';
                 video.style.borderRadius = '0.75rem';
-
                 container.innerHTML = '';
                 container.appendChild(video);
             }
 
-            // Request kamera belakang
-            webcamStream = await navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: { exact: "environment" },
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 }
-                }
-            });
             video.srcObject = webcamStream;
+
+            // Sesuaikan tinggi container setelah dimensi video diketahui
             video.addEventListener('loadedmetadata', () => {
-                if (video.videoHeight > video.videoWidth) {
-                    // Sudah portrait, tidak perlu rotate
-                    video.style.transform = 'none';
-                } else {
-                    // Landscape, rotate 90 derajat
-                    video.style.transform = 'rotate(90deg)';
-                    video.style.width = '177.78%';
-                    video.style.marginLeft = '-38.89%';
-                }
+                const ratio = video.videoHeight / video.videoWidth;
+                const containerWidth = container.offsetWidth;
+                container.style.height = (containerWidth * ratio) + 'px';
+                container.style.minHeight = 'unset';
             });
+
             isWebcamRunning = true;
         }
 
