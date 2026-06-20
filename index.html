@@ -174,7 +174,8 @@
                             </div>
                             <!-- Webcam Feed -->
                             <div id="webcam-container"
-                                class="w-full h-full flex items-center justify-center bg-black rounded-xl overflow-hidden min-h-[300px]">
+                                class="w-full flex items-center justify-center bg-black rounded-xl overflow-hidden"
+                                style="min-height: 450px;">>
                                 <div class="flex flex-col items-center gap-2 text-white/60">
                                     <span class="material-symbols-outlined text-[48px]">videocam_off</span>
                                     <span class="text-body-sm">Klik Capture untuk memulai kamera</span>
@@ -351,6 +352,8 @@
                 video.autoplay = true;
                 video.playsInline = true;
                 video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.objectFit = 'cover';
                 video.style.borderRadius = '0.75rem';
                 container.innerHTML = '';
                 container.appendChild(video);
