@@ -371,10 +371,6 @@
 
             // Sesuaikan tinggi container setelah dimensi video diketahui
             video.addEventListener('loadedmetadata', () => {
-                console.log('videoWidth:', video.videoWidth);
-                console.log('videoHeight:', video.videoHeight);
-                console.log('containerWidth:', container.offsetWidth);
-
                 const ratio = video.videoHeight / video.videoWidth;
                 const containerWidth = container.offsetWidth;
                 container.style.height = (containerWidth * ratio) + 'px';
