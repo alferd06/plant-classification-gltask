@@ -355,19 +355,31 @@
                 video.style.height = '100%';
                 video.style.objectFit = 'cover';
                 video.style.borderRadius = '0.75rem';
+
                 container.innerHTML = '';
                 container.appendChild(video);
             }
 
             // Request kamera belakang
             webcamStream = await navigator.mediaDevices.getUserMedia({
-                video: { 
+                video: {
                     facingMode: { exact: "environment" },
                     width: { ideal: 1280 },
                     height: { ideal: 720 }
                 }
             });
             video.srcObject = webcamStream;
+            video.addEventListener('loadedmetadata', () => {
+                if (video.videoHeight > video.videoWidth) {
+                    // Sudah portrait, tidak perlu rotate
+                    video.style.transform = 'none';
+                } else {
+                    // Landscape, rotate 90 derajat
+                    video.style.transform = 'rotate(90deg)';
+                    video.style.width = '177.78%';
+                    video.style.marginLeft = '-38.89%';
+                }
+            });
             isWebcamRunning = true;
         }
 
