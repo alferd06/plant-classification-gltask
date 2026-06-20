@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html class="light" lang="en" style="">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Plant Identifier - Expert Botanical AI</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <!-- Material Symbols -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet">
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-container": "#5d253b",
+                        "inverse-surface": "#2e3132",
+                        "surface-container-lowest": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "primary": "#3a693c",
+                        "surface-container-low": "#f3f4f6",
+                        "surface-tint": "#3a693c",
+                        "on-error": "#ffffff",
+                        "on-secondary-fixed": "#121c28",
+                        "tertiary-container": "#d88ca5",
+                        "on-secondary-fixed-variant": "#3e4755",
+                        "on-background": "#191c1e",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-fixed-variant": "#6f3349",
+                        "tertiary-fixed": "#ffd9e3",
+                        "on-surface-variant": "#424940",
+                        "primary-fixed": "#bbf0b7",
+                        "inverse-on-surface": "#f0f1f3",
+                        "inverse-primary": "#a0d39c",
+                        "on-tertiary": "#ffffff",
+                        "on-primary-fixed": "#002106",
+                        "secondary-fixed-dim": "#bdc7d8",
+                        "tertiary": "#8b4a61",
+                        "surface": "#f8f9fb",
+                        "primary-fixed-dim": "#a0d39c",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed-variant": "#225026",
+                        "surface-variant": "#e1e2e4",
+                        "outline": "#72796f",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#d9e3f4",
+                        "primary-container": "#7cae7a",
+                        "tertiary-fixed-dim": "#ffb0c9",
+                        "on-secondary": "#ffffff",
+                        "surface-dim": "#d9dadc",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-fixed": "#39071e",
+                        "secondary": "#555f6d",
+                        "surface-container-high": "#e7e8ea",
+                        "surface-bright": "#f8f9fb",
+                        "secondary-container": "#d6e0f1",
+                        "on-primary-container": "#124119",
+                        "surface-container": "#edeef0",
+                        "background": "#f8f9fb",
+                        "surface-container-highest": "#e1e2e4",
+                        "on-secondary-container": "#596372",
+                        "outline-variant": "#c1c9bd"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "2xl": "1rem"
+                    },
+                    "spacing": {
+                        "gutter": "16px",
+                        "md": "24px",
+                        "margin-desktop": "32px",
+                        "sm": "16px",
+                        "base": "4px",
+                        "container-max": "1200px",
+                        "xl": "48px",
+                        "lg": "32px",
+                        "xs": "8px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-lg-mobile": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .shadow-subtle {
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.04);
+        }
+
+        [data-tab-content] {
+            display: none;
+        }
+
+        [data-tab-content].active {
+            display: block;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@latest/dist/teachablemachine-image.min.js"></script>
+</head>
+
+<body class="bg-surface font-body-lg text-on-surface">
+    <!-- TopNavBar (Shared Component) -->
+    <header
+        class="fixed top-0 w-full z-50 flex justify-between items-center px-gutter md:px-margin-desktop h-16 bg-surface dark:bg-inverse-surface shadow-sm">
+        <div class="flex items-center gap-2">
+            <span class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary">Plant
+                Identifier</span>
+        </div>
+        <div class="hidden md:flex gap-8 h-full items-center">
+            <a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary h-full flex items-center" href="#">Identify</a>
+        </div>
+        <button class="p-2 rounded-full hover:bg-surface-container-low transition-colors">
+            <span class="material-symbols-outlined text-on-surface">menu</span>
+        </button>
+    </header>
+    <!-- Main Content Canvas -->
+    <main class="pt-24 pb-12 px-gutter md:px-margin-desktop max-w-[1200px] mx-auto min-h-screen">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+            <!-- Left Column (Input) - 7/12 ratio -->
+            <section class="lg:col-span-7 space-y-md">
+                <div class="bg-surface-container-low p-md rounded-2xl shadow-subtle min-h-[500px] flex flex-col">
+                    <!-- Tabs Header -->
+                    <div class="flex gap-lg border-b border-outline-variant mb-md">
+                        <button
+                            class="pb-base px-2 font-headline-md text-primary border-b-2 border-primary transition-all"
+                            id="tab-btn-camera" onclick="switchTab('camera')">
+                            Live Camera
+                        </button>
+                        <button class="pb-base px-2 font-headline-md text-secondary transition-all" id="tab-btn-upload"
+                            onclick="switchTab('upload')">
+                            Upload Photo
+                        </button>
+                    </div>
+                    <!-- Camera Tab Content -->
+                    <div class="active flex-1 flex flex-col gap-md" data-tab-content="" id="tab-camera">
+                        <div class="relative aspect-video bg-black rounded-xl overflow-hidden group">
+                            <div
+                                class="absolute inset-0 flex items-center justify-center bg-black/20 text-white z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="material-symbols-outlined text-[48px]">videocam</span>
+                            </div>
+                            <!-- Webcam Feed -->
+                            <div id="webcam-container" class="w-full h-full flex items-center justify-center bg-black rounded-xl overflow-hidden min-h-[300px]">
+                                <div class="flex flex-col items-center gap-2 text-white/60">
+                                    <span class="material-symbols-outlined text-[48px]">videocam_off</span>
+                                    <span class="text-body-sm">Klik Capture untuk memulai kamera</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center">
+                            <button onclick="captureAndPredict()"
+                                class="bg-primary-container text-white px-xl py-sm rounded-lg font-headline-md shadow-subtle hover:opacity-90 active:scale-[0.98] transition-all flex items-center gap-2">
+                                <span class="material-symbols-outlined">photo_camera</span>
+                                Capture
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Upload Tab Content -->
+                    <div class="flex-1 flex flex-col h-full" data-tab-content="" id="tab-upload">
+                        <input type="file" id="file-input" accept="image/*" class="hidden" onchange="handleUpload(event)">
+                        <img id="upload-preview" class="hidden w-full rounded-xl object-cover max-h-[300px] mb-md" />
+                        <div id="upload-placeholder"
+                            class="flex-1 border-2 border-dashed border-outline-variant rounded-xl flex flex-col items-center justify-center p-xl hover:border-primary transition-colors cursor-pointer group"
+                            onclick="document.getElementById('file-input').click()">
+                            <span class="material-symbols-outlined text-[64px] text-outline-variant group-hover:text-primary mb-md transition-colors">cloud_upload</span>
+                            <h3 class="font-headline-md text-on-surface mb-xs">Drag and drop plant photo</h3>
+                            <p class="text-body-sm text-secondary mb-lg">Support for JPEG, PNG up to 10MB</p>
+                            <button onclick="event.stopPropagation(); document.getElementById('file-input').click()"
+                                class="bg-primary-container text-white px-lg py-sm rounded-lg font-headline-md hover:opacity-90 active:scale-[0.98] transition-all">
+                                Browse File
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- Right Column (Results) - 5/12 ratio -->
+            <section class="lg:col-span-5 space-y-md">
+                <div class="bg-surface-container-low p-md rounded-2xl shadow-subtle h-full flex flex-col">
+                    <div class="flex items-center justify-between mb-lg">
+                        <h2 class="font-headline-md text-secondary">Classification Results</h2>
+                        <span id="result-confidence" class="bg-primary/10 text-primary px-3 py-1 rounded-full text-label-caps uppercase">— % Match</span>
+                    </div>
+                    <!-- Top Result -->
+                    <div class="mb-xl text-center lg:text-left">
+                        <span class="text-label-caps text-secondary uppercase tracking-widest">Identified as</span>
+                        <h1 id="result-label" class="font-headline-lg lg:text-headline-lg text-headline-lg-mobile text-on-surface mt-base">—</h1>
+                    </div>
+                    <!-- Detailed Probabilities -->
+                    <div class="space-y-lg flex-1">
+                        <!-- Cabai -->
+                        <div class="space-y-xs">
+                            <div class="flex justify-between items-center text-body-sm">
+                                <span class="font-bold text-on-surface">Cabai</span>
+                                <span id="pct-cabai" class="text-primary font-bold">0%</span>
+                            </div>
+                            <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+                                <div id="bar-cabai" class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <!-- Tomat -->
+                        <div class="space-y-xs">
+                            <div class="flex justify-between items-center text-body-sm">
+                                <span class="text-secondary">Tomat</span>
+                                <span id="pct-tomat" class="text-secondary">0%</span>
+                            </div>
+                            <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+                                <div id="bar-tomat" class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <!-- Bayam -->
+                        <div class="space-y-xs">
+                            <div class="flex justify-between items-center text-body-sm">
+                                <span class="text-secondary">Bayam</span>
+                                <span id="pct-bayam" class="text-secondary">0%</span>
+                            </div>
+                            <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+                                <div id="bar-bayam" class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <!-- Ciplukan -->
+                        <div class="space-y-xs">
+                            <div class="flex justify-between items-center text-body-sm">
+                                <span class="text-secondary">Ciplukan</span>
+                                <span id="pct-ciplukan" class="text-secondary">0%</span>
+                            </div>
+                            <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+                                <div id="bar-ciplukan" class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <!-- Unknown -->
+                        <div class="space-y-xs">
+                            <div class="flex justify-between items-center text-body-sm">
+                                <span class="text-secondary">Unknown</span>
+                                <span id="pct-unknown" class="text-secondary">0%</span>
+                            </div>
+                            <div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+                                <div id="bar-unknown" class="bg-secondary-fixed-dim h-full rounded-full transition-all duration-700" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        <!-- Secondary Information / Bento Grid Style Section -->
+        <section class="mt-xl grid grid-cols-1 md:grid-cols-3 gap-md">
+
+
+
+        </section>
+    </main>
+    <!-- React Component Logic Container -->
+
+    <script>
+        const MODEL_URL = "https://teachablemachine.withgoogle.com/models/j33SLZtyT/";
+
+        let model, webcamObj, isWebcamRunning = false;
+
+        // ── Load Model ──────────────────────────────────────────
+        async function loadModel() {
+            const modelURL = MODEL_URL + "model.json";
+            const metadataURL = MODEL_URL + "metadata.json";
+            model = await tmImage.load(modelURL, metadataURL);
+            console.log("Model loaded!");
+        }
+
+        // ── Tab Switching ────────────────────────────────────────
+        function switchTab(tab) {
+            const cameraBtn = document.getElementById('tab-btn-camera');
+            const uploadBtn = document.getElementById('tab-btn-upload');
+            const cameraContent = document.getElementById('tab-camera');
+            const uploadContent = document.getElementById('tab-upload');
+
+            if (tab === 'camera') {
+                cameraBtn.classList.replace('text-secondary', 'text-primary');
+                cameraBtn.classList.add('border-primary');
+                uploadBtn.classList.replace('text-primary', 'text-secondary');
+                uploadBtn.classList.remove('border-primary');
+                cameraContent.classList.add('active');
+                uploadContent.classList.remove('active');
+            } else {
+                stopWebcam();
+                uploadBtn.classList.replace('text-secondary', 'text-primary');
+                uploadBtn.classList.add('border-primary');
+                cameraBtn.classList.replace('text-primary', 'text-secondary');
+                cameraBtn.classList.remove('border-primary');
+                uploadContent.classList.add('active');
+                cameraContent.classList.remove('active');
+            }
+        }
+
+        // ── Webcam ───────────────────────────────────────────────
+        async function startWebcam() {
+            if (isWebcamRunning) return;
+            const container = document.getElementById('webcam-container');
+            container.innerHTML = '';
+            webcamObj = new tmImage.Webcam(400, 300, true);
+            await webcamObj.setup();
+            await webcamObj.play();
+            container.appendChild(webcamObj.canvas);
+            isWebcamRunning = true;
+            window.requestAnimationFrame(webcamLoop);
+        }
+
+        async function webcamLoop() {
+            if (!isWebcamRunning) return;
+            webcamObj.update();
+            window.requestAnimationFrame(webcamLoop);
+        }
+
+        function stopWebcam() {
+            if (webcamObj && isWebcamRunning) {
+                webcamObj.stop();
+                isWebcamRunning = false;
+            }
+        }
+
+        async function captureAndPredict() {
+            if (!isWebcamRunning) {
+                await startWebcam();
+                return;
+            }
+            await predict(webcamObj.canvas);
+        }
+
+        // ── Upload ───────────────────────────────────────────────
+        function handleUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = async () => {
+                    document.getElementById('upload-preview').src = e.target.result;
+                    document.getElementById('upload-preview').classList.remove('hidden');
+                    document.getElementById('upload-placeholder').classList.add('hidden');
+                    await predict(img);
+                };
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ── Predict ──────────────────────────────────────────────
+        async function predict(imageElement) {
+            if (!model) {
+                alert("Model belum selesai loading, tunggu sebentar.");
+                return;
+            }
+            const predictions = await model.predict(imageElement);
+
+            // Sort: highest confidence first
+            const sorted = [...predictions].sort((a, b) => b.probability - a.probability);
+            const top = sorted[0];
+
+            // Update top result
+            document.getElementById('result-label').textContent = top.className;
+            document.getElementById('result-confidence').textContent =
+                (top.probability * 100).toFixed(1) + "% Match";
+
+            // Update confidence bars
+            predictions.forEach(p => {
+                const pct = (p.probability * 100).toFixed(1);
+                const key = p.className.toLowerCase().replace(/\s+/g, '-');
+                const barEl = document.getElementById('bar-' + key);
+                const pctEl = document.getElementById('pct-' + key);
+                if (barEl) barEl.style.width = pct + '%';
+                if (pctEl) pctEl.textContent = pct + '%';
+
+                // Highlight top bar
+                if (barEl) {
+                    const isTop = p.className === top.className;
+                    barEl.classList.toggle('bg-primary-container', isTop);
+                    barEl.classList.toggle('bg-secondary-fixed-dim', !isTop);
+                }
+                // Highlight top percentage text
+                if (pctEl) {
+                    const isTop = p.className === top.className;
+                    pctEl.classList.toggle('text-primary', isTop);
+                    pctEl.classList.toggle('font-bold', isTop);
+                    pctEl.classList.toggle('text-secondary', !isTop);
+                }
+            });
+        }
+
+        // ── Init ─────────────────────────────────────────────────
+        window.addEventListener('load', loadModel);
+    </script>
+
+
+</body>
+
+</html>
